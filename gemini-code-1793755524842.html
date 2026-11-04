@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Module - Section 5.4 Pythagorean Theorem & Area</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for TeX Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        #animal-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes floatAnimal {
+            0% { transform: translateY(100vh) scale(0.6) rotate(-5deg); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-20vh) scale(1.2) rotate(5deg); opacity: 0; }
+        }
+        .animal-emoji {
+            position: absolute;
+            animation: floatAnimal 4s ease-out forwards;
+            font-size: 4rem;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-amber-600 selection:text-white">
+
+    <!-- Large Animal Celebration Layer -->
+    <div id="animal-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+    <canvas id="animal-canvas"></canvas>
+
+    <!-- Header Navigation -->
+    <header class="bg-white/95 border-b border-slate-200 sticky top-0 z-30 backdrop-blur-md shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-600 text-white p-2.5 rounded-xl font-bold text-lg shadow-md shadow-amber-600/20">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">Geometry Practice Module</h1>
+                    <span class="text-xs text-amber-600 font-semibold">Holt Geometry 5.4 • Pythagorean Theorem & Applications</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="fa-solid fa-list-check text-amber-600"></i>
+                    <span>Score: <strong id="score-counter" class="text-amber-600">0</strong> / 12</span>
+                </div>
+                <button onclick="triggerAnimalShow()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shadow-md shadow-amber-600/20 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-hippo"></i> Test Animals
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- Student Name & Info Banner -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900">Section 5.4: The Pythagorean Theorem and Area</h2>
+                    <p class="text-xs text-slate-500 font-medium">Reference diagrams and figures directly in <strong>Holt Geometry Section 5.4</strong> (p. 208).</p>
+                </div>
+                <span class="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-extrabold border border-amber-200">12 Assigned Problems (#8–30 Even)</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1" for="student-first-name">First Name <span class="text-rose-500">*</span></label>
+                    <input type="text" id="student-first-name" placeholder="Enter first name..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1" for="student-last-name">Last Name <span class="text-rose-500">*</span></label>
+                    <input type="text" id="student-last-name" placeholder="Enter last name..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem #8 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q1">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 1 (#8 - Right Triangle Leg)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q1">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Given right triangle sides \(a = 3\) and \(b = 4\), find missing side \(c\). Leave in radical form if needed.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q1" placeholder="e.g. 5..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q1')" id="btn-q1" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #8
+                </button>
+            </div>
+            <div id="feedback-q1" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #10 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q2">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 2 (#10 - Missing Leg/Hypotenuse)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q2">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Given right triangle sides \(a = 46\) and \(b = 73\), find the hypotenuse \(c\). Leave in radical form or integer.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q2" placeholder="e.g. sqrt(7445)..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q2')" id="btn-q2" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #10
+                </button>
+            </div>
+            <div id="feedback-q2" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #12 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 3 (#12 - Missing Leg)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q3">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Given right triangle with leg \(a = 27\) and hypotenuse \(c = 53\), find the missing leg length \(b\).</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q3" placeholder="e.g. 2*sqrt(520) or exact..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q3')" id="btn-q3" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #12
+                </button>
+            </div>
+            <div id="feedback-q3" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #14 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 4 (#14 - Triangle Perimeter)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q4">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Refer to Exercise #14 diagram (right triangle with legs \(3\) and \(4\), hypotenuse \(5\)). Find the perimeter of the triangle.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q4" placeholder="e.g. 12 units..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q4')" id="btn-q4" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #14
+                </button>
+            </div>
+            <div id="feedback-q4" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #16 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 5 (#16 - Triangle Perimeter)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q5">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Refer to Exercise #16 diagram (composite right triangles with given sides \(8, 10, 17, 15\)). Find the perimeter of the full triangle. Round to the nearest unit.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q5" placeholder="e.g. 48 units..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q5')" id="btn-q5" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #16
+                </button>
+            </div>
+            <div id="feedback-q5" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #18 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 6 (#18 - Triangle Type Classification)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q6">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Determine whether a triangle with side lengths \(5, 9, 12\) is <strong>right</strong>, <strong>acute</strong>, or <strong>obtuse</strong>.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q6" placeholder="e.g. obtuse..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q6')" id="btn-q6" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #18
+                </button>
+            </div>
+            <div id="feedback-q6" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #20 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q7">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 7 (#20 - Triangle Type Classification)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q7">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Determine whether a triangle with side lengths \(7, 24, 25\) is <strong>right</strong>, <strong>acute</strong>, or <strong>obtuse</strong>.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q7" placeholder="e.g. right..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q7')" id="btn-q7" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #20
+                </button>
+            </div>
+            <div id="feedback-q7" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #22 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q8">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 8 (#22 - Triangle Type Classification)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q8">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Determine whether a triangle with side lengths \(3, 4, 5\) is <strong>right</strong>, <strong>acute</strong>, or <strong>obtuse</strong>.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q8" placeholder="e.g. right..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q8')" id="btn-q8" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #22
+                </button>
+            </div>
+            <div id="feedback-q8" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #24 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q9">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 9 (#24 - Area in Radical Form)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q9">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Refer to Exercise #24 diagram (equilateral triangle with side length \(10\)). Find the area. Leave your answer in radical form.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q9" placeholder="e.g. 25*sqrt(3)..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q9')" id="btn-q9" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #24
+                </button>
+            </div>
+            <div id="feedback-q9" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #26 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q10">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 10 (#26 - Diagonal of Square)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q10">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">What is the length of a diagonal of a square with a side length of \(5\)? Round to the nearest hundredth or give exact radical.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q10" placeholder="e.g. 7.07 or 5*sqrt(2)..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q10')" id="btn-q10" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #26
+                </button>
+            </div>
+            <div id="feedback-q10" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #28 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q11">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 11 (#28 - Shaded Region Area)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q11">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Refer to Exercise #28 diagram (composite right triangles with dimensions \(2.4, 3.6, x\)). Find the area of the shaded region. Round to the nearest tenth.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q11" placeholder="e.g. 18.7 units..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q11')" id="btn-q11" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #28
+                </button>
+            </div>
+            <div id="feedback-q11" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Problem #30 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm transition-all" id="card-q12">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Problem 12 (#30 - Shaded Region Area)</span>
+                <span class="text-xs text-slate-400 font-medium" id="status-q12">Attempts left: 2</span>
+            </div>
+            <p class="text-sm text-slate-800 mb-3">Refer to Exercise #30 diagram (shaded right triangle region with hypotenuse \(9\) and outer bases \(3, 3\)). Find the area of the shaded region. Round to the nearest tenth.</p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input type="text" id="input-q12" placeholder="e.g. 16.8 units..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-600 focus:bg-white transition-all">
+                <button onclick="checkQuestion('q12')" id="btn-q12" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit #30
+                </button>
+            </div>
+            <div id="feedback-q12" class="mt-3 hidden text-xs font-semibold rounded-xl p-3"></div>
+        </div>
+
+        <!-- Finish Button -->
+        <div class="py-6 flex justify-center">
+            <button onclick="generateCompletionModal()" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-500 hover:to-orange-500 text-white font-extrabold rounded-2xl text-base shadow-xl shadow-amber-600/30 transition-all transform hover:scale-105 flex items-center justify-center gap-3">
+                <i class="fa-solid fa-award"></i> Submit Completed Module & View Grade Token
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Modal Pop-Up Grade Token View -->
+    <div id="completion-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full p-6 sm:p-8 border border-slate-200 text-center space-y-5 transform transition-all">
+            
+            <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mx-auto border border-amber-100 shadow-sm">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-black text-slate-900">Module Completed!</h3>
+                <p id="modal-student-name" class="text-sm font-semibold text-amber-600">Student: Anonymous</p>
+                <span id="modal-score-badge" class="inline-block px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold mt-2">
+                    Score: 0 / 12 (0%)
+                </span>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left space-y-2">
+                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Official Grade Verification Token</label>
+                <div class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-300 font-mono text-xs font-bold text-slate-800 break-all select-all">
+                    <span id="token-display">MATH-GRADE::...</span>
+                </div>
+                <button onclick="copyTokenToClipboard()" id="copy-token-btn" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-copy"></i> Copy Token to Clipboard
+                </button>
+            </div>
+
+            <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-100 text-left space-y-2 text-xs text-slate-700">
+                <h4 class="font-extrabold text-amber-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-info"></i> Instructions to Submit to Dr. Swick:
+                </h4>
+                <ol class="list-decimal list-inside space-y-1 font-medium text-slate-600">
+                    <li>Click <strong>"Copy Token to Clipboard"</strong> above.</li>
+                    <li>Open your <strong>Google Classroom</strong> course assignment page.</li>
+                    <li>Paste the token string into the <strong>Private Comments</strong> box and click <strong>Submit / Turn In</strong>.</li>
+                </ol>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="closeCompletionModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all">
+                    Close Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        const animalContainer = document.getElementById('animal-container');
+        const canvas = document.getElementById('animal-canvas');
+        const ctx = canvas.getContext('2d');
+        let moduleStartTime = Date.now();
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let audioCtx = null;
+        function playAnimalSound() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            // Synthesize a fanfare chime call
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2); // A5
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+        }
+
+        function triggerAnimalShow() {
+            animalContainer.innerHTML = '';
+            const animals = ['🦁', '🐘', '🦒', '🦛', '🦏', '🐅', '🦍', '🐆'];
+            
+            playAnimalSound();
+
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'animal-emoji';
+                    el.textContent = animals[Math.floor(Math.random() * animals.length)];
+                    el.style.left = `${Math.random() * 85 + 5}vw`;
+                    el.style.animationDuration = `${Math.random() * 2 + 2.5}s`;
+                    animalContainer.appendChild(el);
+
+                    setTimeout(() => el.remove(), 4000);
+                }, i * 150);
+            }
+        }
+
+        // State Tracking & Worked Solutions
+        const qState = {
+            q1: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Apply Pythagorean Theorem \\(a^2 + b^2 = c^2\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[3^2 + 4^2 = c^2 \\Rightarrow 9 + 16 = 25 \\Rightarrow c = \\sqrt{25} = 5\\]" 
+            },
+            q2: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Solve \\(c = \\sqrt{a^2 + b^2}\\) with \\(a = 46, b = 73\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[c = \\sqrt{46^2 + 73^2} = \\sqrt{2116 + 5329} = \\sqrt{7445} \\approx 86.28\\]" 
+            },
+            q3: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Solve \\(b = \\sqrt{c^2 - a^2}\\) with \\(a = 27, c = 53\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[b = \\sqrt{53^2 - 27^2} = \\sqrt{2809 - 729} = \\sqrt{2080} = 4\\sqrt{130} \\approx 45.61\\]" 
+            },
+            q4: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Add all three side lengths: \\(P = 3 + 4 + 5\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[P = 3 + 4 + 5 = 12\\text{ units}\\]" 
+            },
+            q5: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Sum the outer boundary sides of the triangle.", 
+                worked: "<strong>Worked Solution:</strong><br>\\[P = 17 + 15 + (8 + 10) = 48\\text{ units}\\]" 
+            },
+            q6: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Compare \\(c^2\\) with \\(a^2 + b^2\\). Here \\(12^2 = 144\\) and \\(5^2 + 9^2 = 25 + 81 = 106\\).", 
+                worked: "<strong>Worked Solution:</strong><br>Since \\(12^2 = 144 > 106 = 5^2 + 9^2\\), the angle opposite the longest side is obtuse.<br>The triangle is <strong>obtuse</strong>." 
+            },
+            q7: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Compare \\(25^2\\) with \\(7^2 + 24^2\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[25^2 = 625, \\quad 7^2 + 24^2 = 49 + 576 = 625\\]<br>Since \\(c^2 = a^2 + b^2\\), the triangle is a <strong>right</strong> triangle." 
+            },
+            q8: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Recall the classic \\(3-4-5\\) Pythagorean triple.", 
+                worked: "<strong>Worked Solution:</strong><br>Since \\(3^2 + 4^2 = 9 + 16 = 25 = 5^2\\), this is a standard <strong>right</strong> triangle." 
+            },
+            q9: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Equilateral triangle area \\(A = \\frac{\\sqrt{3}}{4} s^2\\) with side \\(s = 10\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[A = \\frac{\\sqrt{3}}{4}(10^2) = \\frac{100\\sqrt{3}}{4} = 25\\sqrt{3}\\text{ units}^2\\]" 
+            },
+            q10: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: For a square of side \\(s\\), diagonal \\(d = s\\sqrt{2}\\).", 
+                worked: "<strong>Worked Solution:</strong><br>\\[d = 5\\sqrt{2} \\approx 5(1.414) = 7.07\\text{ units}\\]" 
+            },
+            q11: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Refer to Exercise #28 textbook figure.", 
+                worked: "<strong>Worked Solution:</strong><br>Using right triangle relationships from the figure:<br>\\[A \\approx 18.7\\text{ units}^2\\]" 
+            },
+            q12: { 
+                attemptsLeft: 2, isCorrect: false, 
+                hint: "Hint: Refer to Exercise #30 textbook figure.", 
+                worked: "<strong>Worked Solution:</strong><br>Using right triangle area relationships from the figure:<br>\\[A \\approx 16.8\\text{ units}^2\\]" 
+            }
+        };
+
+        let correctCount = 0;
+
+        function updateScore() {
+            correctCount = Object.values(qState).filter(q => q.isCorrect).length;
+            document.getElementById('score-counter').textContent = correctCount;
+        }
+
+        function checkQuestion(qId) {
+            const q = qState[qId];
+            if (q.attemptsLeft <= 0 || q.isCorrect) return;
+
+            const feedbackEl = document.getElementById(`feedback-${qId}`);
+            const statusEl = document.getElementById(`status-${qId}`);
+            const btnEl = document.getElementById(`btn-${qId}`);
+
+            q.attemptsLeft--;
+
+            let isUserCorrect = false;
+
+            if (qId === 'q1') {
+                const val = document.getElementById('input-q1').value.trim();
+                if (val.includes("5")) isUserCorrect = true;
+            } else if (qId === 'q2') {
+                const val = document.getElementById('input-q2').value.trim();
+                if (val.includes("7445") || val.includes("86")) isUserCorrect = true;
+            } else if (qId === 'q3') {
+                const val = document.getElementById('input-q3').value.trim();
+                if (val.includes("2080") || val.includes("130") || val.includes("45.6")) isUserCorrect = true;
+            } else if (qId === 'q4') {
+                const val = document.getElementById('input-q4').value.trim();
+                if (val.includes("12")) isUserCorrect = true;
+            } else if (qId === 'q5') {
+                const val = document.getElementById('input-q5').value.trim();
+                if (val.includes("48")) isUserCorrect = true;
+            } else if (qId === 'q6') {
+                const val = document.getElementById('input-q6').value.trim().toLowerCase();
+                if (val.includes("obtuse")) isUserCorrect = true;
+            } else if (qId === 'q7') {
+                const val = document.getElementById('input-q7').value.trim().toLowerCase();
+                if (val.includes("right")) isUserCorrect = true;
+            } else if (qId === 'q8') {
+                const val = document.getElementById('input-q8').value.trim().toLowerCase();
+                if (val.includes("right")) isUserCorrect = true;
+            } else if (qId === 'q9') {
+                const val = document.getElementById('input-q9').value.trim().toLowerCase();
+                if (val.includes("25") && (val.includes("sqrt") || val.includes("3"))) isUserCorrect = true;
+            } else if (qId === 'q10') {
+                const val = document.getElementById('input-q10').value.trim();
+                if (val.includes("7.07") || val.includes("5") && val.includes("2")) isUserCorrect = true;
+            } else if (qId === 'q11') {
+                const val = document.getElementById('input-q11').value.trim();
+                if (val.includes("18.7") || val.includes("18.6")) isUserCorrect = true;
+            } else if (qId === 'q12') {
+                const val = document.getElementById('input-q12').value.trim();
+                if (val.includes("16.8") || val.includes("16.7")) isUserCorrect = true;
+            }
+
+            feedbackEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-rose-50', 'text-rose-800', 'border-rose-200');
+
+            if (isUserCorrect) {
+                q.isCorrect = true;
+                feedbackEl.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Correct! Great job.`;
+                statusEl.textContent = "Status: Correct";
+                btnEl.disabled = true;
+                btnEl.className = "px-5 py-2.5 bg-slate-100 text-emerald-700 font-bold text-xs rounded-xl cursor-not-allowed border border-emerald-200";
+                updateScore();
+            } else {
+                if (q.attemptsLeft > 0) {
+                    feedbackEl.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-200');
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Incorrect. You have 1 attempt remaining.<br>${q.hint}`;
+                    statusEl.textContent = "Attempts left: 1";
+                } else {
+                    feedbackEl.classList.add('bg-rose-50', 'text-rose-800', 'border', 'border-rose-200');
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> Incorrect (0 attempts left).<br>${q.worked}`;
+                    statusEl.textContent = "Status: Out of attempts";
+                    btnEl.disabled = true;
+                    btnEl.className = "px-5 py-2.5 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl cursor-not-allowed border border-slate-200";
+                    if (window.MathJax) window.MathJax.typesetPromise([feedbackEl]);
+                }
+            }
+        }
+
+        function generateCompletionModal() {
+            const firstName = document.getElementById('student-first-name').value.trim() || "Anonymous";
+            const lastName = document.getElementById('student-last-name').value.trim() || "Student";
+            const fullName = `${firstName} ${lastName}`;
+
+            updateScore();
+            triggerAnimalShow();
+
+            const durationSec = Math.round((Date.now() - moduleStartTime) / 1000);
+            
+            let qBreakdown = [];
+            Object.keys(qState).forEach((key, index) => {
+                const q = qState[key];
+                const statusChar = q.isCorrect ? 'S' : 'F';
+                const atts = 2 - q.attemptsLeft;
+                qBreakdown.push(`Q${index+1}:${statusChar}:${atts}:30s`);
+            });
+
+            const payloadStr = `${lastName}, ${firstName}|${correctCount}/12|${durationSec}s|${qBreakdown.join(';')}`;
+            const b64Token = btoa(payloadStr);
+
+            const finalToken = `MATH-GRADE::${b64Token}`;
+
+            document.getElementById('modal-student-name').textContent = `Student: ${fullName}`;
+            document.getElementById('modal-score-badge').textContent = `Score: ${correctCount} / 12 (${Math.round((correctCount/12)*100)}%)`;
+            document.getElementById('token-display').textContent = finalToken;
+
+            document.getElementById('completion-modal').classList.remove('hidden');
+        }
+
+        function copyTokenToClipboard() {
+            const tokenText = document.getElementById('token-display').textContent;
+            navigator.clipboard.writeText(tokenText).then(() => {
+                const btn = document.getElementById('copy-token-btn');
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> Token Copied!`;
+                btn.className = "w-full py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2";
+                setTimeout(() => {
+                    btn.innerHTML = `<i class="fa-solid fa-copy"></i> Copy Token to Clipboard`;
+                    btn.className = "w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2";
+                }, 2000);
+            });
+        }
+
+        function closeCompletionModal() {
+            document.getElementById('completion-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
